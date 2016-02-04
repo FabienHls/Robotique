@@ -1,2 +1,4 @@
-# Robotique
-Group 4
+## Robotique
+#Group 4
+-Fabien HAUREILS
+-Kevin MARZIN
