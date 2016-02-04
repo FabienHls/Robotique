@@ -33,7 +33,7 @@ def leg_ik(x, y, z, l1=51, l2=63.7, l3=93):
         ,theta3.__round__(3),"]")
 
 def al_kashi (a, b , c):
-    return acos((b*b + c*c - a*a)/(2 * b * c))
+    return acos((b**2 + c**2 - a**2)/(2 * b * c))
 
 
 #Test
