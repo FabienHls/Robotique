@@ -28,7 +28,6 @@ def leg_ik(x, y, z, l1=51, l2=63.7, l3=93):
     print("[", theta1.__round__(3), ",", theta2.__round__(3), ","
           , theta3.__round__(3), "]")
 
-
 #Al-kashi theorem
 def al_kashi(a, b, c):
     return acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
@@ -36,6 +35,3 @@ def al_kashi(a, b, c):
 
 # Test
 leg_ik(118.79, 0, -115.14)
-leg_ik(0, 118.79, -115.14)
-leg_ik(-64.14, 0, -67.79)
-leg_ik(203.23, 0, -14.30)
