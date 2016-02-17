@@ -21,9 +21,9 @@ def leg_dk(theta1, theta2, theta3, l1=51, l2=63.7, l3=93):
     y = math.sin(theta1) * plan_contribution
     z = - (l2 * math.sin(theta2) +l3 * math.sin(theta2 + theta3))
 
-    print(x.__round__(2))
-    print(y.__round__(2))
-    print(z.__round__(2))
+    print(x)
+    print(y)
+    print(z)
 
 
 leg_dk(180,-30.501,-67.819)

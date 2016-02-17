@@ -25,8 +25,7 @@ def leg_ik(x, y, z, l1=51, l2=63.7, l3=93):
     theta2 = degrees(theta2) + correction_theta2
     theta3 = degrees(theta3) + correction_theta3
 
-    print("[", theta1.__round__(3), ",", theta2.__round__(3), ","
-          , theta3.__round__(3), "]")
+    print("[", theta1, ",", theta2 ,",", theta3, "]")
 
 #Al-kashi theorem
 def al_kashi(a, b, c):
