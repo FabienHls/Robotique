@@ -7,6 +7,10 @@ import pypot.robot
 from contextlib import closing
 from math import *
 
+INIT_X = 118.79
+INIT_Y = 0
+INIT_Z = -90
+
 #Function to change motors id
 def changeID(old, new):
     verif = 0
@@ -57,7 +61,14 @@ def leg_ik(x, y, z, l1=51, l2=63.7, l3=93):
     theta1 = atan2(y, x)
 
     d13 = sqrt(y ** 2 + x ** 2) - l1
+    if (d13 < 0) :
+        print("Destination point too close, max position sent")
+        d13 = 0
+
     d = sqrt(z ** 2 + d13 ** 2)
+    if (d > l2+l3):
+        print("Destination point too far away, max position sent")
+        d = l2+l3
 
     a = atan2(z, d13)
     b = al_kashi(l2, d, l3)
@@ -72,15 +83,12 @@ def leg_ik(x, y, z, l1=51, l2=63.7, l3=93):
     return (theta1,theta2,theta3)
 
 def envoyer_pos(x,y,z,leg):
-        angles= leg_ik(x,y,z)
+        angles = leg_ik(x,y,z)
         print "angles:", angles
         i=0
         for m in leg:
             m.goal_position = angles[i]
             i=i+1
-        '''robot.goto_position(
-            {motorName+"1":angles[0],motorName+"2":angles[1],motorName+"3":angles[2]},
-            0)'''
 
 def envoyer_pos2(x,y,z,robot,motorName):
         angles= leg_ik(x,y,z)
@@ -101,6 +109,87 @@ def envoyer_angles(theta1,theta2,theta3,robot,motorName):
 def recup_pos(found_ids):
     return dxl_io.get_present_position(found_ids)
 
+def initilisation_pos():
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z, robot.leg6)
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z, robot.leg5)
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z,robot.leg4)
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z,robot.leg3)
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z,robot.leg2)
+    envoyer_pos(INIT_X, INIT_Y, INIT_Z, robot.leg1)
+    time.sleep(1)
+
+def move_center(x,y,z):
+
+    envoyer_pos(INIT_X, -x+y + INIT_Y, INIT_Z+z, robot.leg1)
+    envoyer_pos(INIT_X, x+y + INIT_Y, INIT_Z+z,robot.leg4)
+    if y < 0:
+        envoyer_pos(INIT_X+x, y + INIT_Y , INIT_Z+z,robot.leg2)
+        envoyer_pos(INIT_X-x, -y + INIT_Y, INIT_Z+z, robot.leg6)
+        envoyer_pos(INIT_X-x, -y + INIT_Y, INIT_Z+z, robot.leg5)
+        envoyer_pos(INIT_X+x, y + INIT_Y, INIT_Z+z,robot.leg3)
+
+    else:
+        envoyer_pos(INIT_X-x, -y + INIT_Y, INIT_Z+z, robot.leg5)
+        envoyer_pos(INIT_X+x, y + INIT_Y, INIT_Z+z,robot.leg3)
+        envoyer_pos(INIT_X+x, y + INIT_Y, INIT_Z+z,robot.leg2)
+        envoyer_pos(INIT_X-x, -y + INIT_Y, INIT_Z+z, robot.leg6)
+
+def walk_straight_line():
+    PAS_Z = 20
+    #Placements Marche
+    envoyer_pos(INIT_X, -20, INIT_Z, robot.leg6)
+    envoyer_pos(INIT_X, 20, INIT_Z, robot.leg5)
+    envoyer_pos(INIT_X, 0, INIT_Z,robot.leg4)
+    envoyer_pos(INIT_X, -20, INIT_Z,robot.leg3)
+    envoyer_pos(INIT_X, 20, INIT_Z,robot.leg2)
+    envoyer_pos(INIT_X, 0, INIT_Z, robot.leg1)
+    time.sleep(1)
+
+    while True:
+        #Leve le groupe 246
+        envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z + PAS_Z , robot.leg6)
+        envoyer_pos(INIT_X, INIT_Y + 20, INIT_Z + PAS_Z , robot.leg2)
+        envoyer_pos(INIT_X, INIT_Y, INIT_Z + PAS_Z , robot.leg4)
+        #Descend le groupe 135
+        envoyer_pos(INIT_X, INIT_Y + 20, INIT_Z - PAS_Z , robot.leg5)
+        envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z - PAS_Z , robot.leg3)
+        envoyer_pos(INIT_X, INIT_Y, INIT_Z - PAS_Z ,robot.leg1)
+        time.sleep(0.5)
+
+        #Deplace en +y le groupe 246
+        envoyer_pos(INIT_X, INIT_Y - 40, INIT_Z + PAS_Z , robot.leg6)
+        envoyer_pos(INIT_X, INIT_Y + 40, INIT_Z + PAS_Z , robot.leg2)
+        envoyer_pos(INIT_X - 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg4)
+        #Deplace en -y le groupe 135
+        envoyer_pos(INIT_X, INIT_Y + 40, INIT_Z - PAS_Z , robot.leg5)
+        envoyer_pos(INIT_X, INIT_Y - 40, INIT_Z - PAS_Z , robot.leg3)
+        envoyer_pos(INIT_X - 20, INIT_Y, INIT_Z - PAS_Z ,robot.leg1)
+        time.sleep(0.15)
+
+        #Descend le groupe 246
+        envoyer_pos(INIT_X, INIT_Y - 40, INIT_Z - PAS_Z , robot.leg6)
+        envoyer_pos(INIT_X, INIT_Y + 40, INIT_Z - PAS_Z , robot.leg2)
+        envoyer_pos(INIT_X, INIT_Y, INIT_Z - PAS_Z ,robot.leg4)
+        #Leve le groupe 135
+        envoyer_pos(INIT_X, INIT_Y + 40, INIT_Z + PAS_Z , robot.leg5)
+        envoyer_pos(INIT_X, INIT_Y - 40, INIT_Z + PAS_Z , robot.leg3)
+        envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg1)
+        time.sleep(0.5)
+
+        #Deplace en -y le groupe 246
+        envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z - PAS_Z , robot.leg6)
+        envoyer_pos(INIT_X, INIT_Y + 20, INIT_Z - PAS_Z , robot.leg2)
+        envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z - PAS_Z , robot.leg4)
+        #Deplace en +y le groupe 135
+        envoyer_pos(INIT_X, INIT_Y - 40, INIT_Z + PAS_Z , robot.leg5)
+        envoyer_pos(INIT_X, INIT_Y + 40, INIT_Z + PAS_Z , robot.leg3)
+        envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg1)
+        time.sleep(0.5)
+
+
+
+
+
 #################################################
 
 if __name__ == '__main__':
@@ -114,91 +203,23 @@ if __name__ == '__main__':
             m.compliant = False #debloquer les moteurs
             print 'Detected:', robot.motors
 
-        for i in range(1,7):
-            time.sleep(0.5)
-            envoyer_pos2(118.79, 0, -115.14,robot,"motor_"+str(i))
+        initilisation_pos()
 
-        time.sleep(2)
+        time.sleep(1)
         '''while True:
             t=time.time()
             for i in range(1,7):
-                envoyer_pos(118.79, 0, -115.14+10*sin(2*pi*t*2),robot,"motor_"+str(i))'''
+                envoyer_pos(INIT_X, 0, INIT_Z+10*sin(2*pi*t*2),robot,"motor_"+str(i))'''
 
-#Placements
-        '''envoyer_angles(0, -10, -30,robot,"motor_1")
-        time.sleep(2)
-        envoyer_angles(40, 0, 0,robot,"motor_2")
-        time.sleep(2)
-        envoyer_angles(10, 0, 0,robot,"motor_3")
-        time.sleep(2)
-        envoyer_angles(0, 10, 30,robot,"motor_4")
-        time.sleep(2)
-        envoyer_angles(40, 0, 0,robot,"motor_5")
-        time.sleep(2)
-        envoyer_angles(10, 0, 0,robot,"motor_6")
-        time.sleep(2)'''
+ 
+        #move_center(30,30,-10)
+        walk_straight_line()
 
-        #Axe X
-        '''while True:
-            envoyer_pos(85, 0, -115.14, robot, "motor_1")
-            envoyer_pos(118.79, -20, -115.14, robot, "motor_3")
-            envoyer_pos(118.79, -20, -115.14, robot, "motor_2")
-            envoyer_pos(152.58, 0, -115.14, robot, "motor_4")
-            envoyer_pos(118.79, 20, -115.14, robot, "motor_5")
-            envoyer_pos(118.79, 20, -115.14, robot, "motor_6")
-
-            time.sleep(1)
-            envoyer_pos(152.58, 0, -115.14, robot, "motor_1")
-            envoyer_pos(118.79, 20, -115.14, robot, "motor_3")
-            envoyer_pos(118.79, 20, -115.14, robot, "motor_2")
-            envoyer_pos(85, 0, -115.14, robot, "motor_4")
-            envoyer_pos(118.79, -20, -115.14, robot, "motor_5")
-            envoyer_pos(118.79, -20, -115.14, robot, "motor_6")
-            time.sleep(1)'''
-
-        '''while True:
-                    envoyer_pos(118.79, -20, -115.14, robot, "motor_1")
-                    envoyer_pos(85, 0, -115.14, robot, "motor_2")
-                    envoyer_pos(85, 0, -115.14, robot, "motor_3")
-                    envoyer_pos(118.79, 20, -115.14, robot, "motor_4")
-                    envoyer_pos(152.58, 0, -115.14, robot, "motor_5")
-                    envoyer_pos(152.58, 0, -115.14, robot, "motor_6")
-
-                    time.sleep(1)
-                    envoyer_pos(118.79, 20, -115.14, robot, "motor_1")
-                    envoyer_pos(152.58, 0, -115.14, robot, "motor_2")
-                    envoyer_pos(152.58, 0, -115.14, robot, "motor_3")
-                    envoyer_pos(118.79, -20, -115.14, robot, "motor_4")
-                    envoyer_pos(85, 0, -115.14, robot, "motor_5")
-                    envoyer_pos(85, 0, -115.14, robot, "motor_6")
-                    time.sleep(1)'''
-
-
-        while True: 
-                    envoyer_pos(152.58, 0, -115.14, robot.leg6)
-                    envoyer_pos(152.58, 0, -115.14, robot.leg5)
-                    envoyer_pos(118.79, 20, -115.14,robot.leg4)
-                    envoyer_pos(85, 0, -115.14,robot.leg3)
-                    envoyer_pos(85, 0, -115.14,robot.leg2)
-                    envoyer_pos(118.79, -20, -115.14, robot.leg1)
-
-                    time.sleep(1)
-                    envoyer_pos(85, 0, -115.14, robot.leg6)
-                    envoyer_pos(85, 0, -115.14, robot.leg5)
-                    envoyer_pos(118.79, -20, -115.14, robot.leg4)
-                    envoyer_pos(152.58, 0, -115.14, robot.leg3)
-                    envoyer_pos(152.58, 0, -115.14, robot.leg2)
-                    envoyer_pos(118.79, 20, -115.14, robot.leg1)                    
-                    time.sleep(1)
-
-
-
-
-
-
-      
+        #for m in robot.leg1:
+         #    print(m.present_position)
+       
         # we power off the motors
-        time.sleep(30)  # we wait for 1s
+        time.sleep(2)  # we wait for 1s
         for m in robot.motors:
             m.compliant=True #rebloquer moteurs
         time.sleep(1)  # we wait for 1s
