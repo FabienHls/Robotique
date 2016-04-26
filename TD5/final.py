@@ -185,7 +185,7 @@ def move_center(x,y,z):
 #Moves the robot in straight line walking
 def walk_straight_line():
     PAS_Z = 20
-    #Placements Marche
+    #Walk init
     envoyer_pos(INIT_X, -45, INIT_Z, robot.leg6)
     envoyer_pos(INIT_X, 45, INIT_Z, robot.leg5)
     envoyer_pos(INIT_X, 0, INIT_Z,robot.leg4)
@@ -248,7 +248,7 @@ def walk_straight_line():
 #Rotates without moving the center of the robot
 def rotate_robot():
     PAS_Z = 20
-    #Placement Marche
+    #Walk init
     envoyer_pos(INIT_X, -45, INIT_Z, robot.leg6)
     envoyer_pos(INIT_X, 45, INIT_Z, robot.leg5)
     envoyer_pos(INIT_X, 0, INIT_Z,robot.leg4)
@@ -398,7 +398,7 @@ if __name__ == '__main__':
             window.blit(reticule,(x - TAILLE_RETICULE/2 + 5,y - TAILLE_RETICULE/2 + 4))
             pygame.display.flip()
 
-            #Swicth case on modes
+            #Switch case on modes
             if leg:
                 move_leg(x_centre,y_centre,-40,robot.leg1)
             if center:
