@@ -21,6 +21,12 @@ constL2 = 63.7
 constL3 = 93
 TAILLE_FENETRE = 500
 TAILLE_RETICULE = 100
+LONGUEUR_RECT_BLANC = 400
+HAUTEUR_RECT_BLANC = 30
+x_centre=0
+y_centre=0
+x=0
+y=0
 # Angle to match the theory with reality for theta 2 (measures of the triangle are 22.5, 60.7, 63.7). => Angle =  -20.69
 theta2Correction = -20.69
 # Same goes for theta 3 : +90 - 20.69 - a. Where a = asin(8.2/93) = 5.06
@@ -32,9 +38,20 @@ window = pygame.display.set_mode((TAILLE_FENETRE, TAILLE_FENETRE))
 background = pygame.image.load("images/grille.png").convert()
 background = pygame.transform.scale(background, (TAILLE_FENETRE, TAILLE_FENETRE))
 window.blit(background, (0,0))
+
 reticule = pygame.image.load("images/plus.png").convert_alpha()
 reticule = pygame.transform.scale(reticule, (TAILLE_RETICULE, TAILLE_RETICULE))
 window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+
+rect_blanc = pygame.image.load("images/rect_blanc.jpg").convert_alpha()
+rect_blanc = pygame.transform.scale(rect_blanc, (LONGUEUR_RECT_BLANC, HAUTEUR_RECT_BLANC))
+background.blit(rect_blanc,(10,10))
+if pygame.font:
+    font = pygame.font.Font(None, 36)
+    text = font.render("Mode:", 1, pygame.Color("red"))
+    textpos = text.get_rect()
+    textpos.center = 50,20
+    background.blit(text, textpos)
 #Rafraichissement de l'ecran
 pygame.display.flip()
 
@@ -142,11 +159,10 @@ def initilisation_pos():
 
 def move_leg(x,y,z,leg):
     envoyer_pos(x,y,z,leg)
-    time.sleep(1)
+    time.sleep(0.02)
 
 
 def move_center(x,y,z):
-
     envoyer_pos(INIT_X, -x+y + INIT_Y, INIT_Z+z, robot.leg1)
     envoyer_pos(INIT_X, x+y + INIT_Y, INIT_Z+z,robot.leg4)
     if y < 0:
@@ -171,55 +187,59 @@ def walk_straight_line():
     envoyer_pos(INIT_X, 45, INIT_Z,robot.leg2)
     envoyer_pos(INIT_X, 0, INIT_Z, robot.leg1)
     time.sleep(1)
+    start = True
 
-    while True:
+    while start:
         #Descend le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z - PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z - PAS_Z , robot.leg3)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z - PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Leve le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z + PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z + PAS_Z , robot.leg2)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z + PAS_Z , robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Deplace en +y le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 75, INIT_Z + PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 75, INIT_Z + PAS_Z , robot.leg2)
         envoyer_pos(INIT_X - 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Deplace en -y le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 75, INIT_Z - PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 75, INIT_Z - PAS_Z , robot.leg3)
         envoyer_pos(INIT_X - 20, INIT_Y, INIT_Z - PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Descend le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 75, INIT_Z - PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 75, INIT_Z - PAS_Z , robot.leg2)
         envoyer_pos(INIT_X - 20, INIT_Y, INIT_Z - PAS_Z ,robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Leve le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 75, INIT_Z + PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 75, INIT_Z + PAS_Z , robot.leg3)
         envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Deplace en +y le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z + PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z + PAS_Z , robot.leg3)
         envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z + PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Deplace en -y le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z - PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z - PAS_Z , robot.leg2)
         envoyer_pos(INIT_X + 20, INIT_Y, INIT_Z - PAS_Z , robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                start = False
 
 def rotate_robot():
     PAS_Z = 20
-    #Placements Marche
+    #Placement Marche
     envoyer_pos(INIT_X, -45, INIT_Z, robot.leg6)
     envoyer_pos(INIT_X, 45, INIT_Z, robot.leg5)
     envoyer_pos(INIT_X, 0, INIT_Z,robot.leg4)
@@ -228,50 +248,54 @@ def rotate_robot():
     envoyer_pos(INIT_X, 0, INIT_Z, robot.leg1)
     time.sleep(1)
 
-    while True:
+    start = True
+    while start:
         #Descend le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z - PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z - PAS_Z , robot.leg3)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z - PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Leve le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z + PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z + PAS_Z , robot.leg2)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z + PAS_Z , robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Deplace en +y le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 65, INIT_Z + PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 25, INIT_Z + PAS_Z , robot.leg2)
         envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z + PAS_Z ,robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Deplace en -y le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 65, INIT_Z - PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 25, INIT_Z - PAS_Z , robot.leg3)
         envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z - PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Descend le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 65, INIT_Z - PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 25, INIT_Z - PAS_Z , robot.leg2)
         envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z - PAS_Z ,robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Leve le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 65, INIT_Z + PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 25, INIT_Z + PAS_Z , robot.leg3)
         envoyer_pos(INIT_X, INIT_Y - 20, INIT_Z + PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
 
         #Deplace en +y le groupe 135
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z + PAS_Z , robot.leg5)
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z + PAS_Z , robot.leg3)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z + PAS_Z ,robot.leg1)
-        time.sleep(0.5)
+        time.sleep(0.2)
         #Deplace en -y le groupe 246
         envoyer_pos(INIT_X, INIT_Y - 45, INIT_Z - PAS_Z , robot.leg6)
         envoyer_pos(INIT_X, INIT_Y + 45, INIT_Z - PAS_Z , robot.leg2)
         envoyer_pos(INIT_X, INIT_Y, INIT_Z - PAS_Z , robot.leg4)
-        time.sleep(0.5)
+        time.sleep(0.2)
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                start = False
 
 
 
@@ -283,6 +307,10 @@ if __name__ == '__main__':
     with closing(pypot.robot.from_json('robotConfig.json')) as robot:
 
         quit = False
+        leg = False
+        center = False
+        walk_line = False
+        rotate = False
         # we power on the motors        
         for m in robot.motors:
             m.compliant = False #debloquer les moteurs
@@ -295,30 +323,83 @@ if __name__ == '__main__':
                 #Leave the program
                 if event.type == QUIT or (event.type == KEYDOWN and event.key == K_q):
                     quit = True
+                    leg = center = walk_line = rotate = False
+                    background.blit(rect_blanc,(10,10))
+                    text = font.render("En fermeture ...", 1, pygame.Color("red"))
+                    background.blit(text, textpos)
+                    window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+                    initilisation_pos()
+                    x=y=0
+                    x_centre=y_centre=0
+                if (event.type == KEYDOWN and event.key == K_l):
+                    leg = True
+                    center = walk_line = rotate = False
+                    background.blit(rect_blanc,(10,10))
+                    text = font.render("Mode: Leg", 1, pygame.Color("red"))
+                    background.blit(text, textpos)
+                    window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+                    initilisation_pos()
+                    x=y=0
+                    x_centre=y_centre=0
+                if (event.type == KEYDOWN and event.key == K_c):
+                    center = True
+                    leg = walk_line = rotate = False
+                    background.blit(rect_blanc,(10,10))
+                    text = font.render("Mode: Move center", 1, pygame.Color("red"))
+                    background.blit(text, textpos)
+                    window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+                    initilisation_pos()
+                    x=y=0
+                    x_centre=y_centre=0
+                if (event.type == KEYDOWN and event.key == K_w):
+                    walk_line = True
+                    leg = center = rotate = False
+                    background.blit(rect_blanc,(10,10))
+                    text = font.render("Mode: Walk straight line", 1, pygame.Color("red"))
+                    background.blit(text, textpos)
+                    window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+                    initilisation_pos()
+                    x=y=0
+                    x_centre=y_centre=0
+                if (event.type == KEYDOWN and event.key == K_r):
+                    rotate = True
+                    leg = center = walk_line = False
+                    background.blit(rect_blanc,(10,10))
+                    text = font.render("Mode: Rotate center", 1, pygame.Color("red"))
+                    background.blit(text, textpos)
+                    window.blit(reticule, (TAILLE_FENETRE/2 - TAILLE_RETICULE/2, TAILLE_FENETRE/2 - TAILLE_RETICULE/2))
+                    initilisation_pos()
+                    x=y=0
+                    x_centre=y_centre=0
                 if event.type == MOUSEMOTION:
-                    #On change les coordonnees du reticule
-                    x = event.pos[0] - TAILLE_RETICULE/2
-                    y = event.pos[1] - TAILLE_RETICULE/2
+                    #On change les coordonnees du reticule en appliquant une correction
+                    x = event.pos[0] - 5
+                    y = event.pos[1] - 5
                     x_centre = TAILLE_FENETRE/2 - (TAILLE_FENETRE - x)
                     y_centre = TAILLE_FENETRE/2 - y
-                    print 'position envoyee :', x_centre/7 + 8, y_centre/7 - 6
-                    window.blit(background, (0,0))
-                    window.blit(reticule,(x - TAILLE_RETICULE/2 + 5,y - TAILLE_RETICULE/2 + 4))
-                    pygame.display.flip()
-                    move_center(x_centre/7 + 8,y_centre/7 - 6,-10)
-
-
-     
-            #move_leg(100,50,-40,robot.leg1)
-            #move_center(30,30,-10)
-            #walk_straight_line()
-            #rotate_robot()
-
-        #for m in robot.leg1:
-         #    print(m.present_position)
+            print 'position envoyee :', x_centre/2, y_centre/2
+            print 'position non modifiee:', x,y
+            time.sleep(0.02)
+            window.blit(background, (0,0))
+            window.blit(reticule,(x - TAILLE_RETICULE/2 + 5,y - TAILLE_RETICULE/2 + 4))
+            pygame.display.flip()
+            if leg:
+                move_leg(x_centre,y_centre,-40,robot.leg1)
+                print 'leg \n'
+            if center:
+                print 'center \n'
+                move_center(x_centre/2, y_centre/2,-10)
+            if walk_line:
+                walk_straight_line()
+                walk_line = False
+                print 'walk \n'
+            if rotate:
+                print 'rotate \n'
+                rotate_robot()
+                rotate = False
        
         # we power off the motors
-        time.sleep(2)  # we wait for 1s
+        time.sleep(1)  # we wait for 1s
         for m in robot.motors:
             m.compliant=True #rebloquer moteurs
         time.sleep(1)  # we wait for 1s
